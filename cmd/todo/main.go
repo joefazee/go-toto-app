@@ -5,10 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/joefazee/todo-app"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/joefazee/todo-app"
 )
 
 const (
@@ -19,6 +20,7 @@ func main() {
 
 	add := flag.Bool("add", false, "add a new todo")
 	complete := flag.Int("complete", 0, "mark a todo as completed")
+	pending := flag.Int("pending", 0, "mark a todo as pending")
 	del := flag.Int("del", 0, "delete a todo")
 	list := flag.Bool("list", false, "list all todos")
 
@@ -46,6 +48,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		todos.Print()
 	case *complete > 0:
 		err := todos.Complete(*complete)
 		if err != nil {
@@ -57,6 +60,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		todos.Print()
+	case *pending > 0:
+		err := todos.Pending(*pending)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+		err = todos.Store(todoFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+		todos.Print()
 	case *del > 0:
 		err := todos.Delete(*del)
 		if err != nil {
@@ -68,6 +84,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		todos.Print()
 	case *list:
 		todos.Print()
 	default:
